@@ -1,5 +1,9 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
 from datetime import timedelta
+import sqlalchemy
+from dummydata import getDummyData
+
+dummy = getDummyData()
 
 app = Flask(__name__)
 app.secret_key = "BHSN1378nsdf6avnb8"
@@ -10,9 +14,9 @@ app.permanent_session_lifetime = timedelta(minutes = 5)
 def home(): 
     return render_template("home.html")
 
-@app.route("/about")
-def about():
-    return render_template("about.html")
+@app.route("/shows")
+def shows():
+    return render_template("shows.html", data = dummy)
 
 @app.route("/login", methods = ["POST", "GET"])
 def login():
@@ -26,12 +30,19 @@ def login():
             return redirect(url_for("user"))
         return render_template("login.html")
 
-@app.route("/user")
+@app.route("/user", methods = ["POST", "GET"])
 def user():
+    email = None
     if "user" in session:
-        user = session["user"]
         flash("Successfully logged in!", "info")
-        return render_template("user.html", user = user)
+        if request.method == "POST":
+            email = request.form["email"]
+            session["email"] = email
+        else:
+            if "email" in session:
+                email = session["email"]
+
+        return render_template("user.html", email = email)
     else:
         if "user" in session:
             flash("You are already logged in!", "info")
@@ -43,6 +54,7 @@ def user():
 def logout():
     flash("You have been logged out!", "info")
     session.pop("user", None)
+    session.pop("email", None)
     return redirect(url_for("login"))
 
 if __name__ == '__main__':
