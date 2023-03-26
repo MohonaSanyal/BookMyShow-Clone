@@ -21,7 +21,7 @@
                                     {% if show.Tickets == 0 %}
                                         <a role="button" class="btn btn-outline-secondary mt-3 disabled">Houseful</a>
                                     {% else %}
-                                    <a type="button" id="modal-open" class="open-BookingModal btn btn-outline-primary mt-3" href="#bookingmodal" data-movie="{{dump(show)}}" data-venue="{{[venue['Venue'],venue['Place'],venue['Location']]}}">Book</a>
+                                    <a type="button" id="modal-open" class="open-BookingModal btn btn-outline-primary mt-3" href="#bookingmodal" data-movie="{{dump(show)}}" data-venue="{{dump(venue)}}">Book</a>
                                     {% endif %}
                             </div>
                         {% endfor %}
@@ -41,32 +41,52 @@
   
         <!-- Modal body -->
         <div class="modal-body p-4">
-          <div class="d-flex justify-content-around h4">
-              <p id="movTitle"></p>
-              <p id="movDate"></p> 
-              <p id="movTime"></p>
-              <p id="movPrice"> </p>
-          </div>
-          <form>
+            <table class="table mb-5">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Venue</th>
+                        <th>Hall</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="movId"></td>
+                        <td id="movTitle"></td>
+                        <td id="movDate"></td>
+                        <td id="movTime"></td>
+                        <td id="movVenue"></td>
+                        <td id="movHall"></td>
+                    </tr>
+                </tbody>
+            </table>
+        <form>
             <div>
-              <!-- Number of Tickets with an add and a subtract button -->
-              <div class="form-group d-flex">
-                <label for="InputNumTicket" class="h5 col-sm-9" >Number of Tickets</label>
-                <div class="input-group ">
-                  <button class="btn btn-outline-danger" type="button" onclick="rem()">-</button>
-                  <input type="text" value="1" id="numTkt" class="form-control text-center" aria-label="Example text with button addon" aria-describedby="button-addon" style="max-width: 50px;">     
-                  <button class="btn btn-outline-success" type="button" onclick="add()">+</button>
+                <!-- Name of the person booking the ticket -->
+                
+                <!-- Number of Tickets with an add and a subtract button -->
+                <div class="form-group d-flex">
+                    <label for="InputNumTicket" class="h5 col-sm-9" >Number of Tickets</label>
+                    <div class="input-group ">
+                        <button class="btn btn-outline-danger" type="button" onclick="rem()">-</button>
+                        <input type="text" value="1" id="numTkt" class="form-control text-center" aria-label="Example text with button addon" aria-describedby="button-addon" style="max-width: 50px;">     
+                        <button class="btn btn-outline-success" type="button" onclick="add()">+</button>
+                    </div>
+                </div><br>
+                <!-- Price of ticket -->
+                <div class="form-group d-flex mb-5">
+                    <label class="h5 col-sm-3">Price Rs.</label>
+                    <label class="h5 col-sm-2" id="movPrice"></label>
+                    <label for="totalPrice" class="h5 col-sm-4">Total</label>
+                    <input type="text" class="form-control col-sm-4" id="TotalPrice" value="Rs. " style="max-width: 112px;" disabled>
                 </div>
-              </div><br>
-              <!-- Price of ticket -->
-              <div class="form-group d-flex mb-5">
-                <label for="totalPrice" class="h5 col-sm-9">Price</label>
-                <input type="text" class="form-control col-sm-4" id="TotalPrice" value="Rs. " style="max-width: 112px;" disabled>
-              </div>
 
 
               <!-- Submit button -->
-              <button type="submit" class="btn btn-primary btn-block col-12" data-bs-dismiss="modal">Confirm Booking</button>
+              <button type="submit" class="bookconfirm btn btn-primary btn-block col-12" >Confirm Booking</button>
 
             </div>
           </form>
@@ -80,7 +100,6 @@
     function add() {
       var numTkt = document.getElementById("numTkt").value;
       var price = Number(document.getElementById("movPrice").innerHTML);
-      var totalPrice = document.getElementById("totalPrice");
       if(numTkt < 10){
         numTkt++;
         document.getElementById("numTkt").value = numTkt;
@@ -91,7 +110,6 @@
     function rem() {
       var numTkt = document.getElementById("numTkt").value;
       var price = Number(document.getElementById("movPrice").innerHTML);
-      var totalPrice = document.getElementById("totalPrice");
       if (numTkt > 1) {
         numTkt--;
         document.getElementById("numTkt").value = numTkt;
@@ -104,14 +122,39 @@
         var _self = $(this);
         var movie = _self.data('movie');
         var venue = _self.data('venue');
-        const [venueName,place,location] = venue;
-        console.log(venue);
-        $("#movTitle").text(movie.Name)
+        $("#movId").text(movie.id);
+        $("#movTitle").text(movie.Name);
         $("#movDate").text(movie.Date);
         $("#movTime").text(movie.Time);
         $("#movPrice").text(movie.Price);
+        $("#movVenue").text(venue.Venue);
+        $("#movPlace").text(venue.Place);
+        $("#movHall").text(movie.Hall);
+        var numTkt = document.getElementById("numTkt").value;
+        var price = Number(document.getElementById("movPrice").innerHTML);
+        document.getElementById("TotalPrice").value = "Rs. " + numTkt * price;
         $(_self.attr('href')).modal('show');
     })
+
+    $(document).on("click",".bookconfirm",function(e){
+        e.preventDefault();
+        var numTkt = document.getElementById("numTkt").value;
+        var price = Number(document.getElementById("movPrice").innerHTML);
+        var movTitle = document.getElementById("movTitle").innerHTML;
+        var movDate = document.getElementById("movDate").innerHTML;
+        var movTime = document.getElementById("movTime").innerHTML;
+        var movVenue = document.getElementById("movVenue").innerHTML;
+        var movHall = document.getElementById("movHall").innerHTML;
+        var movId = document.getElementById("movId").innerHTML;
+        var totalPrice = Number(numTkt) * price;
+        var data = {
+            "movId": movId,
+            "numTkt": numTkt,
+            "totalPrice": totalPrice
+        }
+        console.log(data);
+        
+    });
   </script>    
   
 

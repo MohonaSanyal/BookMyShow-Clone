@@ -1,4 +1,5 @@
 from flask import Flask, redirect, url_for, render_template, request, session, flash
+from forms import RegistrationForm, LoginForm
 from datetime import timedelta
 import sqlalchemy
 from dummydata import getDummyData
@@ -7,7 +8,7 @@ import json
 dummy = getDummyData()
 
 app = Flask(__name__)
-app.secret_key = "BHSN1378nsdf6avnb8"
+app.secret_key = '4d22b856660b7fb47b460e1df938554d9c0c97c1a7f7c89a'
 app.permanent_session_lifetime = timedelta(minutes = 5)
 
 @app.route("/")
@@ -19,22 +20,27 @@ def home():
 def shows():
     return render_template("shows.html", data = dummy, dump = json.dumps)
 
+
+@app.route("/register", methods = ["POST", "GET"])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        flash(f"Account created for {form.username.data}!", "success")
+        return redirect(url_for("home"))
+    return render_template("user_register.html", form = form)
+
+
 @app.route("/login", methods = ["POST", "GET"])
 def login():
-    if request.method == "POST":
-        session.permanent = True
-        user = request.form["eml"]
-        user_password = request.form["pwd"]
-        if user == "admin@admin.com" and user_password == "admin":
-            session["user"] = user
-            return redirect(url_for("user"))
+    form = LoginForm()
+    if form.validate_on_submit():
+        if form.email.data == "admin@bmc.com" and form.password.data == "admin":
+            flash("You have been successfully logged in!", "success")
+            return redirect(url_for("home"))
         else:
-            flash("Invalid credentials!", "danger")
-            return redirect(url_for("login"))
-    else:
-        if "user" in session:
-            return redirect(url_for("user"))
-        return render_template("login.html")
+            flash("Login unsuccessful. Please check username and password", "danger")
+    return render_template("user_login.html", form = form)
+        
 
 @app.route("/user", methods = ["POST", "GET"])
 def user():
@@ -48,7 +54,7 @@ def user():
             if "email" in session:
                 email = session["email"]
 
-        return render_template("user.html", email = email)
+        return render_template("user.html", data = None)
     else:
         if "user" in session:
             flash("You are already logged in!", "info")

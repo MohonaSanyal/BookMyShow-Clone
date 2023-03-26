@@ -35,7 +35,7 @@ def getDummyData():
                     "Date": "2019-01-01",
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
-                    "Hall": "Hall A",
+                    "Hall": "A",
                     "Price": "30",
                     "Tickets": 110
                 },
@@ -45,7 +45,7 @@ def getDummyData():
                     "Date": "2019-01-01",
                     "Time": "20:00",
                     "Duration": "2 Hours 20 Minutes",
-                    "Hall": "Hall C",
+                    "Hall": "C",
                     "Price": "25",
                     "Tickets": 24
                 },
@@ -56,7 +56,7 @@ def getDummyData():
                     "Date": "2019-01-01",
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
-                    "Hall": "Hall B",
+                    "Hall": "B",
                     "Price": "30",
                     "Tickets": 52
                 },
@@ -66,7 +66,7 @@ def getDummyData():
                     "Date": "2019-01-01",
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
-                    "Hall": "Hall B",
+                    "Hall": "B",
                     "Price": "30",
                     "Tickets": 4
                 }
@@ -173,5 +173,46 @@ def getDummyData():
     ]
     return showData
 
+def getDummyUserData():
+    '''
+    data schema:
+    userData = {
+        "id": str,
+        "Name": str,
+        "Email": str,
+        "Phone": str,
+        "Password": str,
+        "Tickets": [
+            {
+                "id": str,
+                "Movie": str,
+                "Date": str,
+                "Time": str,
+                "Hall": str,
+                "Price": str,
+                "Quantity": int
+            }]
+    }
+    '''
+    userData = {
+        "id": "U1",
+        "Name": "John Doe",
+        "Email": "john@mail.com",
+        "Phone": "1234567890",
+        "Password": "qwerty",
+        "Tickets": [
+            {   
+                "movDate" : "2019-01-01", 
+                "movHall" : "A",
+                "movTime" : "6:00 PM",
+                "movTitle": "The Lion King",
+                "movVenue": "The Fillmore",
+                "numTkt"  : "2",
+                "price"   : "30",
+                "totalPrice": "60"
+            },
+                    
+        ]
+    }
 if __name__ == '__main__':
     print(getDummyData())
