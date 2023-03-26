@@ -25,8 +25,9 @@ def getDummyData():
         {
             "id": "V1",
             "Venue": "The Fillmore",
-            "City": "San Francisco",
-            "State": "CA",
+            "Place": "San Francisco",
+            "Location": "CA",
+            "Capacity": 120,
             "Movies": [
                 {
                     "id": "S1",
@@ -35,7 +36,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall A",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 110
                 },
                 {
@@ -45,7 +46,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 20 Minutes",
                     "Hall": "Hall C",
-                    "Price": "$25",
+                    "Price": "25",
                     "Tickets": 24
                 },
 
@@ -56,7 +57,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall B",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 52
                 },
                 {
@@ -66,7 +67,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall B",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 4
                 }
             ]
@@ -74,8 +75,9 @@ def getDummyData():
         {
             "id": "V2",
             "Venue": "The Regency",
-            "City": "San Francisco",
-            "State": "CA",
+            "Place": "San Francisco",
+            "Location": "CA",
+            "Capacity": 120,
             "Movies": [
                 {
                     "id": "S5",
@@ -84,7 +86,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall A",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 56
                 },
                 {
@@ -94,7 +96,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 20 Minutes",
                     "Hall": "Hall C",
-                    "Price": "$25",
+                    "Price": "25",
                     "Tickets": 0
                 },
                 {
@@ -104,7 +106,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall B",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 36
                 },
                 {
@@ -114,7 +116,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall B",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 53
                 }
             ]
@@ -122,8 +124,9 @@ def getDummyData():
         {
             "id": "V3",
             "Venue": "The Paramount",
-            "City": "Oakland",
-            "State": "CA",
+            "Place": "Oakland",
+            "Location": "CA",
+            "Capacity": 120,
             "Movies": [
                 {
                     "id": "S9",
@@ -132,7 +135,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall A",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 12
                 },
                 {
@@ -142,7 +145,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 20 Minutes",
                     "Hall": "Hall C",
-                    "Price": "$25",
+                    "Price": "25",
                     "Tickets": 53
                 },
                 {
@@ -152,7 +155,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall B",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 0
                 },
                 {
@@ -162,7 +165,7 @@ def getDummyData():
                     "Time": "20:00",
                     "Duration": "2 Hours 30 Minutes",
                     "Hall": "Hall B",
-                    "Price": "$30",
+                    "Price": "30",
                     "Tickets": 23
                 }
             ]

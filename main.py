@@ -2,6 +2,7 @@ from flask import Flask, redirect, url_for, render_template, request, session, f
 from datetime import timedelta
 import sqlalchemy
 from dummydata import getDummyData
+import json
 
 dummy = getDummyData()
 
@@ -16,15 +17,20 @@ def home():
 
 @app.route("/shows")
 def shows():
-    return render_template("shows.html", data = dummy)
+    return render_template("shows.html", data = dummy, dump = json.dumps)
 
 @app.route("/login", methods = ["POST", "GET"])
 def login():
     if request.method == "POST":
         session.permanent = True
-        user = request.form["nm"]
-        session["user"] = user
-        return redirect(url_for("user"))
+        user = request.form["eml"]
+        user_password = request.form["pwd"]
+        if user == "admin@admin.com" and user_password == "admin":
+            session["user"] = user
+            return redirect(url_for("user"))
+        else:
+            flash("Invalid credentials!", "danger")
+            return redirect(url_for("login"))
     else:
         if "user" in session:
             return redirect(url_for("user"))
@@ -56,6 +62,10 @@ def logout():
     session.pop("user", None)
     session.pop("email", None)
     return redirect(url_for("login"))
+
+@app.route("/modal")
+def modal():
+    return render_template("demodal.html")
 
 if __name__ == '__main__':
     app.run(debug = True)
