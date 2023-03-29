@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField 
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_login import current_user
-from BMC.models import User
+from BMC.models import User, Venue, Show, Ticket, Admin
 
 
 class RegistrationForm(FlaskForm):
@@ -20,7 +20,8 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(username=username.data).first()
         if user:
             raise ValidationError('Username is already taken')
-    
+        elif username.data.lower() == "admin":
+                raise ValidationError('This is a restricted username')
     def validate_email(self, email):
         email = User.query.filter_by(email=email.data).first()
         if email:
@@ -46,6 +47,8 @@ class UpdateAccountForm(FlaskForm):
             user = User.query.filter_by(username=username.data).first()
             if user:
                 raise ValidationError('Username is already taken')
+            elif username.data.lower() == "admin":
+                raise ValidationError('This is a restricted username')
     
     def validate_email(self, email):
         if email.data != current_user.email: # type: ignore
@@ -53,3 +56,68 @@ class UpdateAccountForm(FlaskForm):
             if email:
                 raise ValidationError('Email is already associated with an account')
 
+class AdminRegistrationForm(FlaskForm):
+    email = StringField('Email',
+                        validators=[DataRequired(), Email()])
+    password = PasswordField('Password',
+                             validators=[DataRequired(), Length(min=8, max=24)])
+    confirm_password = PasswordField('Confirm Password',
+                                        validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Sign Up')
+
+    
+    def validate_email(self, email):
+        email = User.query.filter_by(email=email.data).first()
+        if email:
+            raise ValidationError('Email is already associated with an account')
+
+class AdminLoginForm(FlaskForm):
+    email = StringField('Email',
+                        validators=[DataRequired(), Email()])
+    password = PasswordField('Password',
+                             validators=[DataRequired()])
+    remember = BooleanField('Remember Me')
+    submit = SubmitField('Login')
+
+
+class BookingForm(FlaskForm):
+    user_id = StringField('User ID', validators=[DataRequired()])
+    venue_id = StringField('Venue ID', validators=[DataRequired()])
+    show_id = StringField('Show ID', validators=[DataRequired()])
+    num_tickets = StringField('Number of Tickets', validators=[DataRequired()])
+    total_price = StringField('Total Price', validators=[DataRequired()])
+    submit = SubmitField('Confirm Booking')
+
+class VenueForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    place = StringField('Place', validators=[DataRequired()])
+    location = StringField('Location', validators=[DataRequired()])
+    capacity = StringField('Capacity', validators=[DataRequired()])
+    submit = SubmitField('Add Venue')
+
+class EditVenueForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    place = StringField('Place', validators=[DataRequired()])
+    location = StringField('Location', validators=[DataRequired()])
+    capacity = StringField('Capacity', validators=[DataRequired()])
+    submit = SubmitField('Save Changes')
+
+class ShowForm(FlaskForm):
+    venue_id = StringField('Venue ID', validators=[DataRequired()])
+    title = StringField('Title', validators=[DataRequired()])
+    rating = StringField('Rating', validators=[DataRequired()])
+    time = StringField('Time', validators=[DataRequired()])
+    tags = StringField('Tags', validators=[DataRequired()])
+    price = StringField('Price', validators=[DataRequired()])
+    tickets_left = StringField('Tickets', validators=[DataRequired()])
+    submit = SubmitField('Add Show')
+
+class EditShowForm(FlaskForm):
+    venue_id = StringField('Venue ID', validators=[DataRequired()])
+    title = StringField('Title', validators=[DataRequired()])
+    rating = StringField('Rating', validators=[DataRequired()])
+    time = StringField('Time', validators=[DataRequired()])
+    tags = StringField('Tags', validators=[DataRequired()])
+    price = StringField('Price', validators=[DataRequired()])
+    tickets_left = StringField('Tickets', validators=[DataRequired()])
+    submit = SubmitField('Save Changes')

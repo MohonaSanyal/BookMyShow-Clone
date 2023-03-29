@@ -16,26 +16,58 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.id}, {self.username}', '{self.email}')"
     
+class Admin(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key = True)
+    email = db.Column(db.String(120), unique = True, nullable = False)
+    password = db.Column(db.String(60), nullable = False)
+
+    def __repr__(self):
+        return f"Admin('{self.id}, {self.email}')"
+
 class Venue(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100), nullable = False)
-    city = db.Column(db.String(100), nullable = False)
-    state = db.Column(db.String(100), nullable = False)
+    place = db.Column(db.String(100), nullable = False)
+    location = db.Column(db.String(100), nullable = False)
     capacity = db.Column(db.Integer, nullable = False)
 
     def __repr__(self):
-        return f"Venue('{self.id}, {self.name}', '{self.city}', '{self.state}')"
+        return f"Venue('{self.id}, {self.name}', '{self.place}', '{self.location}', '{self.capacity}')"
+    
+    def data(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'place': self.place,
+            'location': self.location,
+            'capacity': self.capacity
+        }
     
 class Show(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), primary_key = True)
+    rating = db.Column(db.Float, nullable = False)
     title = db.Column(db.String(100), nullable = False)
-    time = db.Column(db.String(100), nullable = False) # time format HH:MM AM/PM
+    time = db.Column(db.String(100), nullable = False)
+    tags = db.Column(db.String(100), nullable = False)
     price = db.Column(db.Integer, nullable = False)
+    tickets = db.Column(db.Integer, nullable = False)
 
     def __repr__(self):
         return f"Show('{self.id}, {self.title}', '{self.venue_id}', '{self.time}', '{self.price}')"
     
+    def data(self):
+        return {
+            'id': self.id,
+            'venue_id': self.venue_id,
+            'rating': self.rating,
+            'title': self.title,
+            'time': self.time,
+            'tags': self.tags,
+            'price': self.price,
+            'tickets': self.tickets
+        }
+
 class Ticket(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key = True)
