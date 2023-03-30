@@ -1,0 +1,81 @@
+{% extends "admin_base.html" %}
+{%block title%} Edit Venue {% endblock %}
+
+
+{% block content %}
+<div class="container h-100" style="margin-top: 200px;">
+  <div class="row">
+    <div class="card position-absolute top-50 start-50 translate-middle" style="width: 360px;">
+        <div class="card-header">
+            <h3 class="card-title">Edit Venue</h3>
+        </div>
+        <div class="card-body position-relative">
+          <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <div class="form-group">
+                    {{ form.name.label(class="form-label") }}
+                    {% if form.name.errors %}
+                        {{ form.name(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.name(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.place.label(class="form-label") }}
+                    {% if form.place.errors %}
+                        {{ form.place(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.place.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.place(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.location.label(class="form-label") }}
+                    {% if form.location.errors %}
+                        {{ form.location(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.location.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.location(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.capacity.label(class="form-label") }}
+                    {% if form.capacity.errors %}
+                        {{ form.capacity(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.capacity.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.capacity(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="card-footer mt-3">
+                <div class="form-group row justify-content-center">
+                    {{ form.submit(class="btn btn-outline-success col-sm-5 ") }}
+                    <a type="button" class="btn btn-outline-warning col-sm-4 mx-2 py-2" href="{{url_for('admin_dashboard')}}">Cancel</a>
+                    <a class="btn btn-outline-danger fa fa-trash fa-2x col-sm-2" aria-hidden="true" href="{{url_for('admin_venue_delete',venue_id=venue.id)}}"></a>
+                </div>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
