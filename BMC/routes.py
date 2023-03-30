@@ -10,18 +10,8 @@ from json import dumps
 @app.route("/home")
 def home(): 
     if current_user.is_authenticated: # type: ignore
-        return redirect(url_for("user_dashboard"))
+        return redirect(url_for("dashboard"))
     return redirect(url_for("login"))
-
-@app.route("/dashboard")
-@login_required
-def user_dashboard():
-    return render_template("user_dashboard.html",user = current_user, venues = Venue.query.all(), shows = Show.query.all(), dumps = dumps)
-
-@app.route("/bookings")
-@login_required
-def bookings():
-    return render_template("user_bookings.html",bookings = "", dumps = dumps)
 
 @app.route("/profile", methods = ["POST", "GET"])
 @login_required
@@ -76,6 +66,17 @@ def logout():
     flash("You have been logged out!", "info")
     return redirect(url_for("home"))
 
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("user_dashboard.html",user = current_user, venues = Venue.query.all(), shows = Show.query.all(), dumps = dumps)
+
+@app.route("/bookings")
+@login_required
+def bookings():
+    return render_template("user_bookings.html",bookings = "", dumps = dumps)
+
+
 
 @app.route("/admin/")
 def admin():
@@ -107,9 +108,9 @@ def admin_login():
         return redirect(url_for("home"))
     form = AdminLoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email = form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
-            login_user(user, remember = form.remember.data)
+        admin = Admin.query.filter_by(email = form.email.data).first()
+        if admin and bcrypt.check_password_hash(admin.password, form.password.data):
+            login_user(admin)
             next_page = request.args.get("next")
             app.config['ADMIN'] = True
             flash("You have been logged in!", "success")
@@ -119,26 +120,25 @@ def admin_login():
     return render_template("admin_login.html", form = form)
 
 @app.route("/admin/logout")
-@login_required
 def admin_logout():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
-        return redirect(url_for("home"))
+        return redirect(url_for("logout"))
     logout_user()
     app.config['ADMIN'] = False
     flash("You have been logged out!", "info")
     return redirect(url_for("admin_login"))
 
+
+
 @app.route("/admin/dashboard")
-@login_required
 def admin_dashboard():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
-    return render_template("admin_dashboard.html")
+    return render_template("admin_dashboard.html", venues = Venue.query.all(), shows = Show.query.all())
 
 @app.route("/admin/summary")
-@login_required
 def admin_summary():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
@@ -146,14 +146,13 @@ def admin_summary():
     return render_template("admin_summary.html")
 
 @app.route("/admin/venue-new", methods = ["POST", "GET"])
-@login_required
 def admin_venue_new():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
     form = VenueForm()
     if form.validate_on_submit():
-        venue = Venue(name = form.name.data, address = form.place.data, location = form.location.data, capacity = form.capacity.data)
+        venue = Venue(name = form.name.data, place = form.place.data, location = form.location.data, capacity = form.capacity.data)
         db.session.add(venue)
         db.session.commit()
         flash("Venue has been added!", "success")
@@ -161,7 +160,6 @@ def admin_venue_new():
     return render_template("admin_venue_new.html", form = form)
 
 @app.route("/admin/venue-edit/<int:venue_id>", methods = ["POST", "GET"])
-@login_required
 def admin_venue_edit(venue_id):
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
@@ -170,7 +168,7 @@ def admin_venue_edit(venue_id):
     venue = Venue.query.get_or_404(venue_id)
     if form.validate_on_submit():
         venue.name = form.name.data
-        venue.address = form.place.data
+        venue.place = form.place.data
         venue.location = form.location.data
         venue.capacity = form.capacity.data
         db.session.commit()
@@ -178,18 +176,17 @@ def admin_venue_edit(venue_id):
         return redirect(url_for("admin_dashboard"))
     elif request.method == "GET":
         form.name.data = venue.name
-        form.place.data = venue.address
+        form.place.data = venue.place
         form.location.data = venue.location
         form.capacity.data = venue.capacity
     return render_template("admin_venue_edit.html", form = form, venue = venue)
 
 @app.route("/admin/venue-delete/<int:venue_id>", methods = ["POST", "GET"])
-@login_required
 def admin_venue_delete(venue_id):
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
-    venue = Venue.query.get_or_404(venue_id)
+    venue = Venue.query.filter_by(id = venue_id).first()
     shows = Show.query.filter_by(venue_id = venue_id).all()
     for show in shows:
         db.session.delete(show)
@@ -199,54 +196,59 @@ def admin_venue_delete(venue_id):
     return redirect(url_for("admin_dashboard"))
 
 @app.route("/admin/<int:venue_id>/show-new", methods = ["POST", "GET"])
-@login_required
 def admin_show_new(venue_id):
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
     form = ShowForm()
     if form.validate_on_submit():
-        show = Show(venue_id = venue_id, title = form.title.data, rating = form.rating.data, time = form.time.data, tags = form.tags.data, price = form.price.data, tickets = form.tickets_left.data)
+        form.venue_id.data = venue_id
+        show = Show(venue_id = form.venue_id.data, title = form.title.data, rating = form.rating.data, time = form.time.data, tags = form.tags.data, price = form.price.data, tickets = form.tickets.data)
         db.session.add(show)
         db.session.commit()
         flash("Show has been added!", "success")
         return redirect(url_for("admin_dashboard"))
+    if request.method == "GET":
+        venue_capacity = Venue.query.filter_by(id = venue_id).first().capacity
+        form.venue_id.data = venue_id
+        form.tickets.data = venue_capacity
+        
     return render_template("admin_show_new.html", form = form)
 
 @app.route("/admin/show-edit/<int:show_id>", methods = ["POST", "GET"])
-@login_required
 def admin_show_edit(show_id):
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
     form = EditShowForm()
-    show = Show.query.get_or_404(show_id)
+    show = Show.query.filter_by(id = show_id).first()
     if form.validate_on_submit():
+        show.venue_id = form.venue_id.data
         show.title = form.title.data
         show.rating = form.rating.data
         show.time = form.time.data
         show.tags = form.tags.data
         show.price = form.price.data
-        show.tickets = form.tickets_left.data
+        show.tickets = form.tickets.data
         db.session.commit()
         flash("Show has been updated!", "success")
         return redirect(url_for("admin_dashboard"))
     elif request.method == "GET":
+        form.venue_id.data = show.venue_id
         form.title.data = show.title
         form.rating.data = show.rating
         form.time.data = show.time
         form.tags.data = show.tags
         form.price.data = show.price
-        form.tickets_left.data = show.tickets
-    return render_template("admin_show_edit.html", form = form, show = show)
+        form.tickets.data = show.tickets
+    return render_template("admin_show_edit.html", form = form, show_id = show_id)
 
 @app.route("/admin/show-delete/<int:show_id>", methods = ["POST", "GET"])
-@login_required
 def admin_show_delete(show_id):
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
-    show = Show.query.get_or_404(show_id)
+    show = Show.query.filter_by(id = show_id).first()
     db.session.delete(show)
     db.session.commit()
     flash("Show has been deleted!", "success")

@@ -1,0 +1,50 @@
+{% extends "admin_base.html" %}
+{%block title%} ADMIN Login {% endblock %}
+
+
+{% block content %}
+<div class="container h-100" style="margin-top: 200px;">
+  <div class="row">
+    <div class="card position-absolute top-50 start-50 translate-middle" style="width: 360px; height: 340px;">
+      <div class="card-body position-relative">
+          <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">ADMIN Login</legend>
+                <div class="form-group">
+                    {{ form.email.label(class="form-label") }}
+                    {% if form.email.errors %}
+                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.password.label(class="form-label") }}
+                    {% if form.password.errors %}
+                        {{ form.password(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.password(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group mt-3 row justify-content-center">
+                {{ form.submit(class="btn btn-outline-success col-sm-5 me-4") }}
+                <a type="button" class="btn btn-outline-info col-sm-5" href="{{url_for('admin_register')}}">Register</a>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

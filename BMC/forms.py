@@ -109,8 +109,36 @@ class ShowForm(FlaskForm):
     time = StringField('Time', validators=[DataRequired()])
     tags = StringField('Tags', validators=[DataRequired()])
     price = StringField('Price', validators=[DataRequired()])
-    tickets_left = StringField('Tickets', validators=[DataRequired()])
+    tickets = StringField('Seats Left', validators=[DataRequired()])
     submit = SubmitField('Add Show')
+    
+    def check_venue_id(self, venue_id):
+        if type(venue_id) != int:
+            raise ValidationError('Venue ID must be an integer')
+    def check_title(self, title):
+        if type(title) != str:
+            raise ValidationError('Title must be a string')
+    def check_rating(self, rating):
+        if type(rating) != float:
+            raise ValidationError('Rating must be a float')
+    def check_time(self, time):
+        if type(time) != str:
+            raise ValidationError('Time must be a string')
+    def check_tags(self, tags):
+        if type(tags) != str:
+            raise ValidationError('Tags must be a string')
+    def check_price(self, price):
+        if type(price) != float:
+            raise ValidationError('Price must be a float')
+    def check_tickets(self, tickets):
+        if type(tickets) != int:
+            raise ValidationError('Number of Tickets must be an integer')
+    def validate_ticket_number(self, tickets, venue_id):
+        venue_capacity = Venue.query.filter_by(id=venue_id).first().capacity
+        if tickets > venue_capacity:
+            raise ValidationError('Number of Seats exceeds venue capacity')
+        if tickets < 0:
+            raise ValidationError('Number of Seats cannot be negative')
 
 class EditShowForm(FlaskForm):
     venue_id = StringField('Venue ID', validators=[DataRequired()])
@@ -119,5 +147,34 @@ class EditShowForm(FlaskForm):
     time = StringField('Time', validators=[DataRequired()])
     tags = StringField('Tags', validators=[DataRequired()])
     price = StringField('Price', validators=[DataRequired()])
-    tickets_left = StringField('Tickets', validators=[DataRequired()])
+    tickets = StringField('Seats Left', validators=[DataRequired()])
     submit = SubmitField('Save Changes')
+
+    def check_venue_id(self, venue_id):
+        if type(venue_id) != int:
+            raise ValidationError('Venue ID must be an integer')
+    def check_title(self, title):
+        if type(title) != str:
+            raise ValidationError('Title must be a string')
+    def check_rating(self, rating):
+        if type(rating) != float:
+            raise ValidationError('Rating must be a float')
+    def check_time(self, time):
+        if type(time) != str:
+            raise ValidationError('Time must be a string')
+    def check_tags(self, tags):
+        if type(tags) != str:
+            raise ValidationError('Tags must be a string')
+    def check_price(self, price):
+        if type(price) != float:
+            raise ValidationError('Price must be a float')
+    def check_tickets(self, tickets):
+        if type(tickets) != int:
+            raise ValidationError('Number of Tickets must be an integer')
+        
+    def validate_ticket_number(self, tickets, venue_id):
+        venue_capacity = Venue.query.filter_by(id=venue_id).first().capacity
+        if tickets > venue_capacity:
+            raise ValidationError('Number of Seats exceeds venue capacity')
+        if tickets < 0:
+            raise ValidationError('Number of Seats cannot be negative')
