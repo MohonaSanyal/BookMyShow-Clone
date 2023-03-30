@@ -9,6 +9,7 @@ def load_user(user_id):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key = True)
+    fullname = db.Column(db.String(100), nullable = False)
     username = db.Column(db.String(20), unique = True, nullable = False)
     email = db.Column(db.String(120), unique = True, nullable = False)
     password = db.Column(db.String(60), nullable = False)
@@ -16,6 +17,15 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.id}, {self.username}', '{self.email}')"
     
+    def data(self):
+        return {
+            'id': self.id,
+            'fullname': self.fullname,
+            'username': self.username,
+            'email': self.email,
+            'password': self.password
+        }
+
 class Admin(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key = True)
     email = db.Column(db.String(120), unique = True, nullable = False)
@@ -23,6 +33,13 @@ class Admin(db.Model, UserMixin):
 
     def __repr__(self):
         return f"Admin('{self.id}, {self.email}')"
+    
+    def data(self):
+        return {
+            'id': self.id,
+            'email': self.email,
+            'password': self.password
+        }
 
 class Venue(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -79,3 +96,13 @@ class Ticket(db.Model):
 
     def __repr__(self):
         return f'Ticket("{self.id}, {self.user_id}", "{self.venue_id}", "{self.show_id}", "{self.num_tickets}", "{self.total_price}")'
+
+    def data(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'venue_id': self.venue_id,
+            'show_id': self.show_id,
+            'num_tickets': self.num_tickets,
+            'total_price': self.total_price
+        }

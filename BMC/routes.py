@@ -8,13 +8,19 @@ from json import dumps
 @app.route("/")
 @app.route("/home")
 def home(): 
+    if app.config.get("ADMIN") == True:
+        flash("Admin cannot access as an user", "warning")
+        return redirect(url_for("admin"))
     if current_user.is_authenticated: # type: ignore
         return redirect(url_for("dashboard"))
     return redirect(url_for("login"))
 
-@app.route("/profile", methods = ["POST", "GET"])
+@app.route("/profile/", methods = ["POST", "GET"])
 @login_required
 def profile():
+    if app.config.get("ADMIN") == True:
+        flash("Admin cannot access as an user", "warning")
+        return redirect(url_for("admin"))
     form = UpdateAccountForm()
     if form.validate_on_submit():
         current_user.username = form.username.data
@@ -23,27 +29,34 @@ def profile():
         flash("Your Account Information Has been updated!", "success")
         return redirect(url_for("profile"))
     elif request.method == "GET":
+        form.fullname.data = current_user.fullname # type: ignore
         form.username.data = current_user.username # type: ignore
         form.email.data = current_user.email # type: ignore
     return render_template("user_profile.html", user = current_user,form = form)
 
-@app.route("/register", methods = ["POST", "GET"])
+@app.route("/register/", methods = ["POST", "GET"])
 def register():
+    if app.config.get("ADMIN") == True:
+        flash("Admin cannot access as an user", "warning")
+        return redirect(url_for("admin"))
     if current_user.is_authenticated: # type: ignore
         flash("You are already logged in!", "info")
         return redirect(url_for("home"))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
-        user = User(username = form.username.data, email = form.email.data, password = hashed_password)
+        user = User(fullname = form.fullname.data, username = form.username.data, email = form.email.data, password = hashed_password)
         db.session.add(user)
         db.session.commit()
         flash("Your Account Has been created! You can now Login", "success")
         return redirect(url_for("home"))
     return render_template("user_register.html", form = form)
 
-@app.route("/login", methods = ["POST", "GET"])
+@app.route("/login/", methods = ["POST", "GET"])
 def login():
+    if app.config.get("ADMIN") == True:
+        flash("Admin cannot access as an user", "warning")
+        return redirect(url_for("admin"))
     if current_user.is_authenticated: # type: ignore
         return redirect(url_for("home"))
     form = LoginForm()
@@ -58,21 +71,30 @@ def login():
             flash("Login unsuccessful. Please check email and password", "danger")
     return render_template("user_login.html", form = form)   
 
-@app.route("/logout")
+@app.route("/logout/")
 @login_required
 def logout():
+    if app.config.get("ADMIN") == True:
+        flash("Admin cannot access as an user", "warning")
+        return redirect(url_for("admin"))
     logout_user()
     flash("You have been logged out!", "info")
     return redirect(url_for("home"))
 
-@app.route("/dashboard")
+@app.route("/dashboard/")
 @login_required
 def dashboard():
+    if app.config.get("ADMIN") == True:
+        flash("Admin cannot access as an user", "warning")
+        return redirect(url_for("admin"))
     return render_template("user_dashboard.html",user = current_user, venues = Venue.query.all(), shows = Show.query.all(), dumps = dumps)
 
 @app.route("/book", methods = ["POST"])
 @login_required
 def book():
+    if app.config.get("ADMIN") == True:
+        flash("Admin cannot access as an user", "warning")
+        return redirect(url_for("admin"))
     if request.method == "POST":
         user_id = request.form.get("form_user_id")
         venue_id = request.form.get("form_venue_id")
@@ -88,16 +110,20 @@ def book():
         return redirect(url_for("bookings"))
     return redirect(url_for("dashboard"))
 
-@app.route("/bookings")
+@app.route("/bookings/")
 @login_required
 def bookings():
+    if app.config.get("ADMIN") == True:
+        flash("Admin cannot access as an user", "warning")
+        return redirect(url_for("admin"))
     return render_template("user_bookings.html",bookings = Ticket.query.filter_by(user_id=current_user.id), venues = Venue.query.all(), shows = Show.query.all(), dumps = dumps) # type: ignore
 
 @app.route("/admin/")
+@app.route("/admin/home/")
 def admin():
     return redirect(url_for("admin_login"))
 
-@app.route("/admin/register", methods = ["POST", "GET"])
+@app.route("/admin/register/", methods = ["POST", "GET"])
 def admin_register():
     if current_user.is_authenticated and app.config.get('ADMIN'): # type: ignore
         return redirect(url_for("admin_dashboard"))
@@ -114,7 +140,7 @@ def admin_register():
         return redirect(url_for("admin_login"))
     return render_template("admin_register.html", form = form)
 
-@app.route("/admin/login", methods = ["POST", "GET"])
+@app.route("/admin/login/", methods = ["POST", "GET"])
 def admin_login():
     if current_user.is_authenticated and app.config.get('ADMIN'): # type: ignore
         return redirect(url_for("admin_dashboard"))
@@ -134,7 +160,7 @@ def admin_login():
             flash("Login unsuccessful. Please check email and password", "danger")
     return render_template("admin_login.html", form = form)
 
-@app.route("/admin/logout")
+@app.route("/admin/logout/")
 def admin_logout():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
@@ -146,21 +172,21 @@ def admin_logout():
 
 
 
-@app.route("/admin/dashboard")
+@app.route("/admin/dashboard/")
 def admin_dashboard():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
     return render_template("admin_dashboard.html", venues = Venue.query.all(), shows = Show.query.all())
 
-@app.route("/admin/summary")
+@app.route("/admin/summary/")
 def admin_summary():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
     return render_template("admin_summary.html")
 
-@app.route("/admin/venue-new", methods = ["POST", "GET"])
+@app.route("/admin/venue-new/", methods = ["POST", "GET"])
 def admin_venue_new():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")

@@ -5,15 +5,27 @@
     <div class="content-section">
         <div class="container h-100" style="margin-top: 200px;">
             <div class="row">
-              <div class="card position-absolute top-50 start-50 translate-middle" style="width: 360px; height: 500px;">
+              <div class="card position-absolute top-50 start-50 translate-middle" style="width: 360px;">
                 <div class="card-body position-relative">
                     <form method="POST" action="">
                         {{ form.hidden_tag() }}
                         <fieldset class="form-group">
                             <legend class="border-bottom mb-4">Register</legend>
                             <div class="form-group">
+                                {{ form.fullname.label(class="form-label") }}
+                                {% if form.fullname.errors %}
+                                    {{ form.fullname(class="form-control form-control-lg is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.fullname.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.fullname(class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
                                 {{ form.username.label(class="form-label") }}
-
                                 {% if form.username.errors %}
                                     {{ form.username(class="form-control form-control-lg is-invalid") }}
                                     <div class="invalid-feedback">
@@ -24,7 +36,6 @@
                                 {% else %}
                                     {{ form.username(class="form-control form-control-lg") }}
                                 {% endif %}
-
                             </div>
                             <div class="form-group">
                                 {{ form.email.label(class="form-label") }}

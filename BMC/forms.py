@@ -6,7 +6,8 @@ from BMC.models import User, Venue, Show, Ticket, Admin
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', 
+    fullname = StringField('Fullname', validators=[DataRequired()])
+    username = StringField('Select Username', 
                            validators=[DataRequired(), Length(min=3, max=20)])
     email = StringField('Email',
                         validators=[DataRequired(), Email()])
@@ -36,6 +37,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class UpdateAccountForm(FlaskForm):
+    fullname = StringField('Fullname', validators=[DataRequired()])
     username = StringField('Username', 
                            validators=[DataRequired(), Length(min=3, max=20)])
     email = StringField('Email',
