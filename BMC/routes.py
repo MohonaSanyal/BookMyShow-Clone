@@ -1,8 +1,7 @@
 from flask import redirect, url_for, render_template, flash, request
 from BMC import app, db, bcrypt
-from BMC.forms import RegistrationForm, LoginForm, UpdateAccountForm, AdminRegistrationForm, AdminLoginForm, VenueForm, EditVenueForm, ShowForm, EditShowForm, BookingForm
+from BMC.forms import RegistrationForm, LoginForm, UpdateAccountForm, AdminRegistrationForm, AdminLoginForm, VenueForm, EditVenueForm, ShowForm, EditShowForm
 from BMC.models import User, Admin, Venue, Show, Ticket
-from BMC.dummydata import getDummyVenueData, getDummyShowData, getDummyBookingData
 from flask_login import login_user, current_user, logout_user, login_required
 from json import dumps
 
@@ -46,7 +45,7 @@ def register():
 @app.route("/login", methods = ["POST", "GET"])
 def login():
     if current_user.is_authenticated: # type: ignore
-        return redirect(url_for("user"))
+        return redirect(url_for("home"))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email = form.email.data).first()
@@ -71,12 +70,28 @@ def logout():
 def dashboard():
     return render_template("user_dashboard.html",user = current_user, venues = Venue.query.all(), shows = Show.query.all(), dumps = dumps)
 
+@app.route("/book", methods = ["POST"])
+@login_required
+def book():
+    if request.method == "POST":
+        user_id = request.form.get("form_user_id")
+        venue_id = request.form.get("form_venue_id")
+        show_id = request.form.get("form_show_id")
+        num_tickets = request.form.get("form_tktQuantity")
+        total_price =  request.form.get("form_tktTotal")
+        ticket = Ticket(show_id = show_id, user_id = user_id, venue_id = venue_id, num_tickets = num_tickets, total_price = total_price)
+        show = Show.query.filter_by(id = show_id).first()
+        show.tickets-=int(num_tickets) # type: ignore
+        db.session.add(ticket)
+        db.session.commit()
+        flash("Tickets Booked successfully!", "success")
+        return redirect(url_for("bookings"))
+    return redirect(url_for("dashboard"))
+
 @app.route("/bookings")
 @login_required
 def bookings():
-    return render_template("user_bookings.html",bookings = "", dumps = dumps)
-
-
+    return render_template("user_bookings.html",bookings = Ticket.query.filter_by(user_id=current_user.id), venues = Venue.query.all(), shows = Show.query.all(), dumps = dumps) # type: ignore
 
 @app.route("/admin/")
 def admin():

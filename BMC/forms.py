@@ -79,15 +79,6 @@ class AdminLoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
-
-class BookingForm(FlaskForm):
-    user_id = StringField('User ID', validators=[DataRequired()])
-    venue_id = StringField('Venue ID', validators=[DataRequired()])
-    show_id = StringField('Show ID', validators=[DataRequired()])
-    num_tickets = StringField('Number of Tickets', validators=[DataRequired()])
-    total_price = StringField('Total Price', validators=[DataRequired()])
-    submit = SubmitField('Confirm Booking')
-
 class VenueForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     place = StringField('Place', validators=[DataRequired()])
