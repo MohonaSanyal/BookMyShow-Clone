@@ -3,7 +3,128 @@
 
 
 {% block content %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
-<div class="h1">Summary</div>
+
+<div class="h1 text-center">Analytics</div>
+<div class="d-flex justify-content-around container-fluid">
+    <div id="piechart_3d" style="width: 900px; height: 500px;"></div>
+    <div id="chart_overall" style="width: 900px; height: 300px;"></div>
+</div>
+<div class="row m-lg-3 justify-content-evenly">
+{% for venue in data %}
+    <div class="card mx-3 my-2 col-sm-5">
+        <div class="card-header">
+            {{venue['venue']}} <i class="fab fa-analytics"></i>
+        </div>
+        <div class="card-body">
+            <div class="row justify-content-evenly">
+                <div class="col-sm-6">
+                    <div class="h6">Total Tickets Sold</div>
+                    <div class="h4">{{venue['tickets_sold']}}</div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="h6">Total Revenue</div>
+                    <div class="h4">Rs. {{venue['venue_revenue']}}</div>
+                </div>
+                <div class="col-sm-12 mt-3 row">
+                    <div class="h5">Statistics</div>
+                    <div id="chart_venue" class="chart_venue" data="{{dumps(venue['show_tickets'])}}" class="col-sm-10" style="width: 600px; height: 300px;"></div>
+                    <div class="row justify-content-center">
+                        {% for show in venue['shows'] %}
+                        <div class="col-sm-5 rounded-3 m-1" style="background-color: #acacac;">
+                                <div class="h6">{{show['show']}}</div>
+                                <div class="h6">Tickets Sold: {{show['tickets_sold']}}</div>
+                                <div class="h6">Revenue: Rs. {{show['show_revenue']}}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>           
+            </div>
+        </div>
+    </div>
+    <br>
+{% endfor %}
+</div>
+<script type="text/javascript">
+    google.charts.load("current", {packages:["corechart"]});
+    google.charts.setOnLoadCallback(drawChart);
+    function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Task', 'Hours per Day'],
+            {% for genre in genre_data.keys() %}
+                ['{{genre.capitalize()}}', {{genre_data[genre]}}],
+            {% endfor %}
+        ]);
+        var options = {
+            title: 'Popularity of Genres',
+            is3D: true,
+        };
+        var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+        chart.draw(data, options);
+    }
+</script>
+
+<script type="text/javascript">
+    google.charts.load('current', {packages: ['corechart', 'bar']});
+    google.charts.setOnLoadCallback(drawBasic);
+    function drawBasic() {
+        var data = google.visualization.arrayToDataTable([
+            ['Venue', 'Generated Revenue',],
+            {% for venue in revenue_data.keys() %}
+                ['{{venue.capitalize()}}', {{revenue_data[venue]}}],
+            {% endfor %}
+        ]);
+
+        var options = {
+            title: 'Revenue of Venues',
+            chartArea: {width: '50%'},
+            hAxis: {
+            title: 'Revenue',
+            minValue: 0
+            },
+            vAxis: {
+            title: 'Venue'
+            }
+        };
+        var chart = new google.visualization.BarChart(document.getElementById('chart_overall'));
+        chart.draw(data, options);
+    }
+</script>
+
+<script type="text/javascript">
+    google.charts.load('current', {packages: ['corechart', 'bar']});
+    google.charts.setOnLoadCallback(drawShow);
+    function drawShow() {
+        var options = {
+            title: 'Popularity of Shows',
+            chartArea: {width: '50%'},
+            hAxis: {
+            title: 'Tickets Sold',
+            minValue: 0
+            },
+            vAxis: {
+            title: 'Title'
+            }
+        };
+        const chartlist = document.getElementsByClassName('chart_venue');
+        for (var i = 0; i < chartlist.length; i++){
+            var chart = new google.visualization.BarChart(document.getElementsByClassName('chart_venue')[i]);
+            var show_tickets = (document.getElementsByClassName('chart_venue')[i].getAttribute('data'));
+            var data_list = [['Title', 'Tickets Sold'],
+            ];          
+            data = JSON.parse(show_tickets);
+            data = Object.keys(data).sort().reduce((r, k) => (r[k] = data[k], r), {});
+            for (var key in data){
+                data_list.push([key, data[key]]);
+            }
+            var data = google.visualization.arrayToDataTable(data_list);
+            chart.draw(data, options);
+            data_list = [];
+        }
+    }
+</script>
+
 
 {% endblock %}
