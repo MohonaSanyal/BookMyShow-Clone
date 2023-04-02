@@ -41,7 +41,6 @@
                     {{ form.remember(class="form-check-input") }}
                     {{ form.remember.label(class="form-check-label") }}
                   </div>
-                  <small class="text-muted position-absolute end-0"> <a class="ml-2" href="#"> Forgot password? </a></small>
                 </div>
 
             </fieldset>
@@ -50,7 +49,7 @@
 
                 <div class="position-absolute end-0">
                     <small class="text-muted"> Don't have an account? </small>
-                    <a type="button" class="btn btn-outline-info" href="{{url_for('register')}}">Register</a>
+                    <a type="button" class="btn btn-outline-secondary" href="{{url_for('register')}}">Register</a>
                 </div>
             </div>
         </form>

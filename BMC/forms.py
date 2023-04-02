@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField 
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_login import current_user
-from BMC.models import User, Venue, Show, Ticket, Admin
+from BMC.models import User, Venue
 
 
 class RegistrationForm(FlaskForm):
@@ -37,7 +37,7 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class UpdateAccountForm(FlaskForm):
-    fullname = StringField('Fullname', validators=[DataRequired()])
+    fullname = StringField('Name', validators=[DataRequired(), Length(min=3, max=50)])
     username = StringField('Username', 
                            validators=[DataRequired(), Length(min=3, max=20)])
     email = StringField('Email',

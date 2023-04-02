@@ -1,5 +1,3 @@
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 from BMC import db, login_manager
 from flask_login import UserMixin
 
@@ -71,7 +69,7 @@ class Show(db.Model):
     tickets = db.Column(db.Integer, nullable = False)
 
     def __repr__(self):
-        return f"Show('{self.id}, {self.title}', '{self.venue_id}', '{self.time}', '{self.price}')"
+        return f"Show('{self.id}, {self.title}', '{self.venue_id}', '{self.time}', '{self.price}', '{self.tickets}')"
     
     def data(self):
         return {

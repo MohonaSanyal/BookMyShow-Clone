@@ -23,6 +23,7 @@ def profile():
         return redirect(url_for("admin"))
     form = UpdateAccountForm()
     if form.validate_on_submit():
+        current_user.fullname = form.fullname.data
         current_user.username = form.username.data
         current_user.email = form.email.data
         db.session.commit()
@@ -107,7 +108,6 @@ def book():
         db.session.add(ticket)
         db.session.commit()
         flash("Tickets Booked successfully!", "success")
-        return redirect(url_for("bookings"))
     return redirect(url_for("dashboard"))
 
 @app.route("/bookings/")
@@ -184,7 +184,50 @@ def admin_summary():
     if not app.config.get('ADMIN'): # type: ignore
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
-    return render_template("admin_summary.html")
+    data = []
+    venues = Venue.query.all()
+    shows = Show.query.all()
+    tickets = Ticket.query.all()
+    
+    data = []
+    genre_data = {}
+    revenue_data = {}
+    for venue in venues:
+        venue_data = {}
+        venue_data["venue"] = venue.name
+        venue_data["capacity"] = venue.capacity
+        venue_data["venue_revenue"] = 0
+        venue_data["tickets_sold"] = 0
+        venue_data["shows"] = []
+        venue_data["show_tickets"] = {}
+        for show in shows:
+            if show.venue_id == venue.id:
+                show_data = {}
+                show_data["show"] = show.title
+                show_data["genres"] = show.tags.lower().split(",")
+                for genre in show_data["genres"]:
+                    if genre not in genre_data:
+                        genre_data[genre] = 0
+                show_data["tickets_sold"] = 0
+                show_data["show_revenue"] = 0
+                for ticket in tickets:
+                    if ticket.show_id == show.id:
+                        show_data["tickets_sold"] += ticket.num_tickets
+                        show_data["show_revenue"] += ticket.total_price
+                        for genre in show_data["genres"]:
+                            genre_data[genre] += ticket.num_tickets
+
+                venue_data["venue_revenue"] += show_data["show_revenue"]
+                venue_data["show_tickets"][show.title] = show_data["tickets_sold"]
+                venue_data["tickets_sold"] += show_data["tickets_sold"]
+                venue_data["shows"].append(show_data)
+        revenue_data[venue_data["venue"]] = venue_data["venue_revenue"]
+        data.append(venue_data)
+        
+
+
+
+    return render_template("admin_summary.html", data = data, genre_data = genre_data,revenue_data=revenue_data,dumps = dumps)
 
 @app.route("/admin/venue-new/", methods = ["POST", "GET"])
 def admin_venue_new():
@@ -230,6 +273,9 @@ def admin_venue_delete(venue_id):
     venue = Venue.query.filter_by(id = venue_id).first()
     shows = Show.query.filter_by(venue_id = venue_id).all()
     for show in shows:
+        tickets = Ticket.query.filter_by(show_id = show.id).all()
+        for ticket in tickets:
+            db.session.delete(ticket)
         db.session.delete(show)
     db.session.delete(venue)
     db.session.commit()
@@ -290,6 +336,9 @@ def admin_show_delete(show_id):
         flash("You are not an admin!", "danger")
         return redirect(url_for("home"))
     show = Show.query.filter_by(id = show_id).first()
+    tickets = Ticket.query.filter_by(show_id = show.id).all()
+    for ticket in tickets:
+        db.session.delete(ticket)
     db.session.delete(show)
     db.session.commit()
     flash("Show has been deleted!", "success")
