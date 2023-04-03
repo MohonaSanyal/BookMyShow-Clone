@@ -1,0 +1,35 @@
+{% extends "user_base.html" %}
+
+{% block title %} Bookings {% endblock %}
+
+{% block content %}
+    <div class="h1 text-center">My Bookings</div>
+    {% for booking in bookings %}
+    
+        <div class="card w-100 mx-auto my-3 h6" style="height: 100px; width:90%; border-radius: 20px;">
+            <div class="d-flex">
+                <div class="position-absolute top-50 translate-middle-y col-sm-9 d-flex flex-row">
+                    {% for venue in venues %}
+                        {% if venue.id == booking.venue_id %}
+                        <div id="venue_info" class="col-2 text-center" hidden>{{venue}}</div>
+                        <div class="col-4 text-center ">{{venue.name}}-
+                        {% endif %}
+                    {% endfor %}
+                    {% for show in shows %}
+                        {% if show.id == booking.show_id %}
+                            {{show.title}}</div>
+                            <div class="col-3 h5 text-center">{{show.time}}</div>
+                            <div class="col-2 h5 text-center">Seats: {{booking.num_tickets}}</div>
+                            <div class="col-2 h5 text-center">Rs. {{booking.total_price}}</div>
+                            {{show_time}}
+                        </div>
+                        <div class="position-absolute row top-50 translate-middle-y input-group justify-content-end px-5">
+                            <i class="h6 btn btn-warning  fa fa-star fa-2x col-sm-1" aria-hidden="true" style="cursor: default;">{{show.rating}}</i>                      
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

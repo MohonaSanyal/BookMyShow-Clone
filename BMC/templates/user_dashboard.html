@@ -1,0 +1,196 @@
+{% extends "user_base.html" %}
+{% block title %}
+    Shows
+{% endblock %}
+{%block content%}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <div class="h1 text-center"> Book Tickets </div>
+    <div id="usrId" class="visually-hidden">{{user.id}}</div>
+    {% for venue in venues %}
+        <div class="card w-100 h-100 mx-auto my-5" style="height: 180px; border-radius: 20px;">
+            <div class="card-body p-3">
+                <div class="row">
+                    <h2 class="col-sm-12 card-title text-center">{{venue.name}}</h2>
+                </div>
+                <div class="justify-content-evenly ">
+                  <div class="row justify-content-evenly">
+                    {% for show in shows %}
+                      {% if show.venue_id == venue.id %}              
+                        <div class="col-sm-3 card h6 p-4 text-center m-sm-1" style="height: 180px;width: 260px;">
+                          <span> {{show.title}} </span>
+                          <span> {{show.time}} </span>
+                          <span> Rs. {{show.price}} </span>
+                          {% if show.tickets == 0 %}
+                            <a role="button" class="btn btn-outline-secondary mt-3 disabled">Houseful</a>
+                          {% else %}
+                            <a type="button" id="modal-open" class="btn btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#bookingmodal" data-show="{{dumps(show.data())}}" data-venue="{{dumps(venue.data())}}" data-user="{{user.id}}">Book Now</a>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    
+  <!-- Modal -->
+  <div class="modal fade" id="bookingmodal">
+    <div class="modal-dialog modal-lg modal-dialog-centered d-flex justify-content-center">
+      <div class="modal-content w-100">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Booking Details</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body p-4">
+            <form action="{{url_for('book')}}" method="POST">
+              <div hidden>
+                <div id="form_user_id" name="form_user_id" ></div>
+                <div id="form_show_id" name="form_show_id"></div>
+                <div id="form_venue_id" name="form_venue_id"></div>
+                <div id="form_tktQuantity" name="form_tktQuantity"></div>
+                <div id="form_tktTotal" name="form_tktTotal"></div>
+              </div>
+              <div class="h6 d-flex justify-content-between">
+                <div>Available Seats: <span id="avlTkt"></span></div>
+                <div>Venue ID: <span id="venId"></span></div>
+              </div>
+              <table class="table mb-5">
+                  <thead>
+                      <tr>
+                          <th>ID</th>
+                          <th>Title</th>
+                          <th>Time</th>
+                          <th>Venue</th>
+                          <th>Location</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr>
+                          <td id="movId"></td>
+                          <td id="movTitle"></td>
+                          <td id="movTime"></td>
+                          <td id="movVenue"></td>
+                          <td id="movPlace"></td>
+                      </tr>
+                  </tbody>
+              </table>
+              <div>                  
+                  <!-- Number of Tickets with an add and a subtract button -->
+                  <div class="form-group d-flex">
+                      <label class="h5 col-sm-9" >Number of Tickets</label>
+                      <div class="input-group ">
+                          <button id="rem-tkt" class="btn btn-outline-danger" type="button" onclick="rem()">-</button>
+                          <input type="text" value="1" id="numTkt" class="form-control text-center" disabled aria-describedby="button-addon" style="max-width: 50px;">     
+                          <button id="add-tkt" class="btn btn-outline-success" type="button" onclick="add()">+</button>
+                      </div>
+                  </div><br>
+                  <!-- Price of ticket -->
+                  <div class="form-group d-flex mb-5">
+                      <label class="h5 col-sm-5">Price: Rs.
+                        <span id="movPrice"></span>
+                      </label>
+                      <div class="col-sm-3"></div>
+                      <label for="totalPrice" class="h5 d-flex col-sm-4">
+                        <span class="me-3">Total</span>
+                        <input type="text" class="form-control" id="TotalPrice" style="max-width: 112px;" disabled>
+                      </label>
+                  </div>
+              </div>
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-outline-primary col-12">Confirm Booking</button>
+              </div>
+          </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function add() {
+      var numTkt = document.getElementById("numTkt").value;
+      var price = Number(document.getElementById("movPrice").innerHTML);
+      var avlTkt = Number(document.getElementById("avlTkt").innerHTML);
+      buttonState();
+      if(numTkt < 10 && numTkt < avlTkt){
+        numTkt++;
+        document.getElementById("numTkt").value = numTkt;
+        document.getElementById("TotalPrice").value = numTkt * price;
+        $('#form_tktQuantity').html('<input name="form_tktQuantity" value="'+numTkt+'">');
+        $('#form_tktTotal').html('<input name="form_tktTotal" value="'+numTkt * price+'">');
+      }
+    }
+
+    function rem() {
+      var numTkt = document.getElementById("numTkt").value;
+      var price = Number(document.getElementById("movPrice").innerHTML);
+      var avlTkt = Number(document.getElementById("avlTkt").innerHTML);
+      buttonState();
+      if (numTkt > 1) {
+        numTkt--;
+        document.getElementById("numTkt").value = numTkt;
+        document.getElementById("TotalPrice").value = numTkt * price;
+        $('#form_tktQuantity').html('<input name="form_tktQuantity" value="'+numTkt+'">');
+        $('#form_tktTotal').html('<input name="form_tktTotal" value="'+numTkt * price+'">');
+      }
+    }
+
+    function buttonState(){
+      var numTkt = document.getElementById("numTkt").value;
+      var avlTkt = Number(document.getElementById("avlTkt").value);
+      if (numTkt <= 1)
+        document.getElementById("rem-tkt").disabled = true;
+      else if (numTkt >= 10)
+        document.getElementById("add-tkt").disabled = true;
+      else if (numTkt >= avlTkt)
+        document.getElementById("add-tkt").disabled = true;
+      else {
+        document.getElementById("add-tkt").disabled = false;
+        document.getElementById("rem-tkt").disabled = false;
+      }
+    }
+
+
+    $(document).on('click','#modal-open',function(){
+      const _this = $(this);
+      const show = _this.data('show');
+      const venue = _this.data('venue');
+      const user_id = _this.data('user');
+      const venue_id = venue.id;
+      const place = venue.place;
+      const show_id = show.id;
+      const title = show.title;
+      const time = show.time;
+      const venue_name = venue.name;
+      const price = show.price;
+      const tickets = show.tickets;
+
+
+      $('#avlTkt').text(tickets);
+      $('#usrId').text(user_id);
+      $('#venId').text(venue_id);
+      $('#movId').text(show_id);
+      $('#movTitle').text(title);
+      $('#movTime').text(time);
+      $('#movVenue').text(venue_name);
+      $('#movPlace').text(place);
+      $('#movPrice').text(price);
+      $('#numTkt').val(1);
+      $('#TotalPrice').val(price);
+
+      $('#form_user_id').html('<input name="form_user_id" value="'+user_id+'">');
+      $('#form_show_id').html('<input name="form_show_id" value="'+show_id+'">');
+      $('#form_venue_id').html('<input name="form_venue_id" value="'+venue_id+'">');
+      $('#form_tktQuantity').html('<input name="form_tktQuantity" value="1">');
+      $('#form_tktTotal').html('<input name="form_tktTotal" value="'+price+'">');
+
+      buttonState();
+    });
+
+    
+  </script>    
+  
+
+{% endblock %}
